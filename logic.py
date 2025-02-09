@@ -8,6 +8,12 @@ class Pokemon:
         self.pokemon_trainer = pokemon_trainer
         self.pokemon_number = random.randint(1, 1000)
         self.name = None
+        self.ability = None
+        self.hp = random.randint(100, 1000)
+        self.power = random.randint(10, 50)
+        
+    
+        
         if pokemon_trainer not in Pokemon.pokemons:
             Pokemon.pokemons[pokemon_trainer] = self
         else:
@@ -28,7 +34,50 @@ class Pokemon:
         # A method that returns information about the pokémon
         if not self.name:
             self.name = await self.get_name()  # Retrieving a name if it has not yet been uploaded
-        return f"The name of your Pokémon: {self.name}"  # Returning the string with the Pokémon's name
+            self.ability = await self.get_power()
+        return f"The name of your Pokémon: {self.name} {self.ability}  {self.hp}  {self.power} "   # Returning the string with the Pokémon's name
 
     async def show_img(self):
         # An asynchronous method to retrieve the URL of a pokémon image via PokeAPI
+        url = f'https://pokeapi.co/api/v2/pokemon/{self.pokemon_number}'  # URL API for the request
+        async with aiohttp.ClientSession() as session:  # Opening an HTTP session
+            async with session.get(url) as response:  # Sending a GET request
+                if response.status == 200:
+                    data = await response.json()  # Receiving and decoding JSON response
+                    return data['sprites']['front_default']  # Returning a Pokémon's name
+                else:
+                    return "gada fotonya"  # Return the default name if the request fails
+    async def get_power(self):
+        # An asynchronous method to get the name of a pokémon via PokeAPI
+        url = f'https://pokeapi.co/api/v2/pokemon/{self.pokemon_number}'  # URL API for the request
+        async with aiohttp.ClientSession() as session:  # Opening an HTTP session
+            async with session.get(url) as response:  # Sending a GET request
+                if response.status == 200:
+                    data = await response.json()  # Receiving and decoding JSON response
+                    return data['abilities'][0]['ability']["name"] # Returning a Pokémon's name
+                else:
+                    return "ga ada"  # Return the default name if the request fails
+    
+    def attack(self, enemy):
+        if isinstance(enemy, Wizard): # Memeriksa apakah musuh adalah tipe data Wizard (merupakan instance dari kelas Wizard)
+            chance = random.randint(1,5)
+            if chance == 1:
+                return "Pokémon Penyihir menggunakan perisai selama pertempuran!"
+        if enemy.hp > self.power:
+            enemy.hp -= self.power
+            return f"Pelatih Pokemon @{self.pokemon_trainer} menyerang @{enemy.pokemon_trainer}\nkesehatan @{enemy.pokemon_trainer} sekarang menjadi {enemy.hp}"
+        else:
+            enemy.hp = 0
+            return f"Pelatih Pokemon @{self.pokemon_trainer} mengalahkan @{enemy.pokemon_trainer}!"
+class Wizard(Pokemon):
+
+    def attack(self, enemy):
+        return super().attack(enemy)
+class Fighter(Pokemon):
+    def attack(self, enemy):
+        superboost = random.randint(5,15)
+        self.power += superboost
+        result = super().attack(enemy)
+        self.power -= superboost
+        return result + f"\Pokémon Petarung menggunakan serangan super. Kekuatan yang ditambahkan adalah:{superboost} "
+        
