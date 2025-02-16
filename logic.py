@@ -1,5 +1,6 @@
 import aiohttp  # A library for asynchronous HTTP requests
 import random
+import datetime
 
 class Pokemon:
     pokemons = {}
@@ -57,7 +58,15 @@ class Pokemon:
                     return data['abilities'][0]['ability']["name"] # Returning a Pokémon's name
                 else:
                     return "ga ada"  # Return the default name if the request fails
-    
+    async def feed(self, feed_interval = 20, hp_increase = 10 ):
+        current_time = datetime.current()  
+        delta_time = datetime.timedelta(hours=feed_interval)  
+        if (current_time - self.last_feed_time) > delta_time:
+            self.hp += hp_increase
+            self.last_feed_time = current_time
+            return f"Kesehatan Pokemon dipulihkan. HP saat ini: {self.hp}"
+        else:
+            return f"Kalian dapat memberi makan Pokémon kalian di: {current_time+delta_time}"  
     def attack(self, enemy):
         if isinstance(enemy, Wizard): # Memeriksa apakah musuh adalah tipe data Wizard (merupakan instance dari kelas Wizard)
             chance = random.randint(1,5)
@@ -73,6 +82,15 @@ class Wizard(Pokemon):
 
     def attack(self, enemy):
         return super().attack(enemy)
+    async def feed(self, feed_interval = 10, hp_increase = 10 ):
+        current_time = datetime.current()  
+        delta_time = datetime.timedelta(hours=feed_interval)  
+        if (current_time - self.last_feed_time) > delta_time:
+            self.hp += hp_increase
+            self.last_feed_time = current_time
+            return f"Kesehatan Pokemon dipulihkan. HP saat ini: {self.hp}"
+        else:
+            return f"Kalian dapat memberi makan Pokémon kalian di: {current_time+delta_time}"  
 class Fighter(Pokemon):
     def attack(self, enemy):
         superboost = random.randint(5,15)
@@ -80,4 +98,13 @@ class Fighter(Pokemon):
         result = super().attack(enemy)
         self.power -= superboost
         return result + f"\Pokémon Petarung menggunakan serangan super. Kekuatan yang ditambahkan adalah:{superboost} "
+    async def feed(self, feed_interval = 20, hp_increase = 20 ):
+        current_time = datetime.current()  
+        delta_time = datetime.timedelta(hours=feed_interval)  
+        if (current_time - self.last_feed_time) > delta_time:
+            self.hp += hp_increase
+            self.last_feed_time = current_time
+            return f"Kesehatan Pokemon dipulihkan. HP saat ini: {self.hp}"
+        else:
+            return f"Kalian dapat memberi makan Pokémon kalian di: {current_time+delta_time}"  
         
